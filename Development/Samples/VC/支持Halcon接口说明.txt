@@ -1,0 +1,1 @@
+程序中有宏定义halcon12，打开则调用halcon，可以保存om3文件，注释则不调用halcon，保存pcd文件

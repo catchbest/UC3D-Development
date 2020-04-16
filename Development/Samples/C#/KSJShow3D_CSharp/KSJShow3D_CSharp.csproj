@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>KSJ3DDemoCShape</RootNamespace>
-    <AssemblyName>KSJShow3D_Chape</AssemblyName>
+    <AssemblyName>KSJShow3D_CShape</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PublishUrl>发布\</PublishUrl>

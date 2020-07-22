@@ -50,6 +50,12 @@ extern "C"{
 	KSJ_API  int __stdcall KSJ3D_GetCameraName(int nChannel, char* pcszName);
 	
 	/*
+	功能：得到设备信息（型号，序号，固件版本号）
+	*/
+	KSJ_API  int __stdcall KSJ3D_DeviceGetInformation(int nChannel, KSJ_DEVICETYPE *pDeviceType, int *pnSerials, unsigned short *pwFirmwareVersion, unsigned short *pwFpgaVersion);
+
+	
+	/*
 	取得实时图像回调接口设置
 	*/
 	typedef void(__stdcall *KSJ_LIVE_IMAGE_CALLBACK)(int nChannel, unsigned char *pData, int nWidth, int nHeight, int nBitCount, void *lpContext);
@@ -209,7 +215,14 @@ extern "C"{
 	// KSJ_API  int __stdcall KSJ3D_CalculateProfileDataFromImage(int nChannel, unsigned char *pLiveImageData, float *pfX, float *pfZ);
 	// KSJ_API  int __stdcall KSJ3D_MapProfileDataToImage(int nChannel, float *pfX, float *pfZ, int nPointNum);
 
+	// 打开指定索引的设备
+	KSJ_API  int __stdcall KSJ3D_DeviceOpen(int nChannel);
 
+	// 功能：关闭指定索引的设备，如果不关闭指定相机，那么在多进程下是不能操作这台相机
+	KSJ_API  int __stdcall KSJ3D_DeviceClose(int nChannel);
+
+	// 功能：获取设备在当前进程中的开启关闭状态
+	KSJ_API  int __stdcall KSJ3D_DeviceGetStatus(int nChannel, bool* pbOpen);
 
 #ifdef __cplusplus
 }

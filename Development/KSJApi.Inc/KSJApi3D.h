@@ -48,11 +48,6 @@ extern "C"{
 	取得相机的名称，pcszName需要64Byte的空间
 	*/
 	KSJ_API  int __stdcall KSJ3D_GetCameraName(int nChannel, char* pcszName);
-	
-	/*
-	功能：得到设备信息（型号，序号，固件版本号）
-	*/
-	KSJ_API  int __stdcall KSJ3D_DeviceGetInformation(int nChannel, KSJ_DEVICETYPE *pDeviceType, int *pnSerials, unsigned short *pwFirmwareVersion, unsigned short *pwFpgaVersion);
 
 	
 	/*
@@ -189,7 +184,10 @@ extern "C"{
 	KSJ_API  int __stdcall KSJ3D_LaserModeSet(int nChannel, KSJ_LASER_MODE LaserMode);
 	KSJ_API  int __stdcall KSJ3D_LaserModeGet(int nChannel, KSJ_LASER_MODE *pLaserMode);
 
-	
+
+	// 得到高度测量范围，近端视野，远端视野
+	KSJ_API  int __stdcall KSJ3D_GetMeasurementRangeMax(int nChannel, float *pfZ, float *pfFovNear, float *pfFovFar);
+
 	// 得到高度测量范围，近端视野，远端视野
 	KSJ_API  int __stdcall KSJ3D_GetMeasurementRange(int nChannel, float *pfZMin, float *pfZMax, float *pfFovNear, float *pfFovFar);
 

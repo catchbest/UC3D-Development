@@ -87,7 +87,7 @@ void CTrigger::OnCbnSelchangeComboTriggermode()
 		GetDlgItem(IDC_SPIN_FILTER2)->EnableWindow(TRUE);
 	}
 
-	KSJ3D_SetDataTriggerMode(m_nDeviceCurSel, m_DataTriggerMode);
+	TRACE_API(KSJ3D_SetDataTriggerMode(m_nDeviceCurSel, m_DataTriggerMode), GetParent());
 }
 
 
@@ -95,7 +95,7 @@ void CTrigger::OnEnChangeEditFixedFrameRate()
 {
 	if (m_nDeviceCurSel == -1)   return;
 	m_nInternalFrequencyHz = GetDlgItemInt(IDC_EDIT_FIXED_FRAME_RATE);
-	KSJ3D_SetDataTriggerInternalFrequency(m_nDeviceCurSel, m_nInternalFrequencyHz);
+	TRACE_API(KSJ3D_SetDataTriggerInternalFrequency(m_nDeviceCurSel, m_nInternalFrequencyHz), GetParent());
 }
 
 
@@ -106,7 +106,7 @@ void CTrigger::OnCbnSelchangeComboTriggermethod()
 	int nIndex = pComboBox->GetCurSel();
 	if (nIndex == CB_ERR)    return;
 	m_DataTriggerCondition = (KSJ3D_TRIGGER_EDGE_MODE)nIndex;
-	KSJ3D_SetDataTriggerExternalTriggerParameters(m_nDeviceCurSel, m_nDataTriggerDivider, m_nDataTriggerDelay, m_nDataTriggerFilter, m_DataTriggerCondition);
+	TRACE_API(KSJ3D_SetDataTriggerExternalTriggerParameters(m_nDeviceCurSel, m_nDataTriggerDivider, m_nDataTriggerDelay, m_nDataTriggerFilter, m_DataTriggerCondition), GetParent());
 }
 
 
@@ -114,7 +114,7 @@ void CTrigger::OnEnChangeEditTriggerdelay()
 {
 	if (m_nDeviceCurSel == -1)   return;
 	m_nDataTriggerDelay = GetDlgItemInt(IDC_EDIT_TRIGGERDELAY);
-	KSJ3D_SetDataTriggerExternalTriggerParameters(m_nDeviceCurSel, m_nDataTriggerDivider, m_nDataTriggerDelay, m_nDataTriggerFilter, m_DataTriggerCondition);
+	TRACE_API(KSJ3D_SetDataTriggerExternalTriggerParameters(m_nDeviceCurSel, m_nDataTriggerDivider, m_nDataTriggerDelay, m_nDataTriggerFilter, m_DataTriggerCondition), GetParent());
 }
 
 
@@ -122,7 +122,7 @@ void CTrigger::OnEnChangeEditPeriod()
 {
 	if (m_nDeviceCurSel == -1)   return;
 	m_nDataTriggerDivider = GetDlgItemInt(IDC_EDIT_PERIOD);
-	KSJ3D_SetDataTriggerExternalTriggerParameters(m_nDeviceCurSel, m_nDataTriggerDivider, m_nDataTriggerDelay, m_nDataTriggerFilter, m_DataTriggerCondition);
+	TRACE_API(KSJ3D_SetDataTriggerExternalTriggerParameters(m_nDeviceCurSel, m_nDataTriggerDivider, m_nDataTriggerDelay, m_nDataTriggerFilter, m_DataTriggerCondition), GetParent());
 }
 
 
@@ -130,7 +130,7 @@ void CTrigger::OnEnChangeEditFilter2()
 {
 	if (m_nDeviceCurSel == -1)   return;
 	m_nDataTriggerFilter = GetDlgItemInt(IDC_EDIT_FILTER2);
-	KSJ3D_SetDataTriggerExternalTriggerParameters(m_nDeviceCurSel, m_nDataTriggerDivider, m_nDataTriggerDelay, m_nDataTriggerFilter, m_DataTriggerCondition);
+	TRACE_API(KSJ3D_SetDataTriggerExternalTriggerParameters(m_nDeviceCurSel, m_nDataTriggerDivider, m_nDataTriggerDelay, m_nDataTriggerFilter, m_DataTriggerCondition), GetParent());
 }
 
 
@@ -140,7 +140,7 @@ void CTrigger::OnEnChangeEditY()
 	TCHAR str[32];
 	GetDlgItem(IDC_EDIT_Y)->GetWindowText(str, 32);
 	m_fProfiley = _tstof(str);
-	KSJ3D_SetYResolution(m_nDeviceCurSel, m_fProfiley);
+	TRACE_API(KSJ3D_SetYResolution(m_nDeviceCurSel, m_fProfiley), GetParent());
 }
 
 
@@ -150,7 +150,7 @@ void CTrigger::OnCbnSelchangeComboLaser()
 	CComboBox *pComboBox = (CComboBox*)GetDlgItem(IDC_COMBO_LASER);
 	int nIndex = pComboBox->GetCurSel();
 	if (nIndex == CB_ERR)    return;
-	KSJ3D_LaserModeSet(m_nDeviceCurSel, KSJ_LASER_MODE(nIndex));
+	TRACE_API(KSJ3D_LaserModeSet(m_nDeviceCurSel, KSJ_LASER_MODE(nIndex)), GetParent());
 }
 
 
@@ -218,9 +218,9 @@ void CTrigger::Readini(HANDLE hKSJIni)
 	pComboBox = (CComboBox*)GetDlgItem(IDC_COMBO_TRIGGERMODE);//Êý¾Ý´¥·¢
 	KSJINI_GetDWORD(hKSJIni, _T("DataTrigger"), _T("Mode"), 0, (DWORD*)&m_DataTriggerMode);
 	pComboBox->SetCurSel(m_DataTriggerMode);
-	KSJ3D_SetDataTriggerMode(m_nDeviceCurSel, m_DataTriggerMode);
+	TRACE_API(KSJ3D_SetDataTriggerMode(m_nDeviceCurSel, m_DataTriggerMode), GetParent());
 	OnCbnSelchangeComboTriggermode();
-	KSJ3D_GetDataTriggerExternalTriggerParameters(m_nDeviceCurSel, &nvalue, &nvalue2, &nvalue3, (KSJ3D_TRIGGER_EDGE_MODE*)&nvalue4);
+	TRACE_API(KSJ3D_GetDataTriggerExternalTriggerParameters(m_nDeviceCurSel, &nvalue, &nvalue2, &nvalue3, (KSJ3D_TRIGGER_EDGE_MODE*)&nvalue4), GetParent());
 	
 	KSJINI_GetDWORD(hKSJIni, _T("DataTrigger"), _T("IntervalOfEveryPulse"), nvalue, (DWORD*)&m_nDataTriggerDivider);
 	((CSpinButtonCtrl*)GetDlgItem(IDC_SPIN_PERIOD))->SetPos32(m_nDataTriggerDivider);
@@ -238,13 +238,13 @@ void CTrigger::Readini(HANDLE hKSJIni)
 	TCHAR szTemp[64];
 	KSJINI_GetString(hKSJIni, _T("3D"), _T("Y"), _T("0.1"), szTemp);
 	m_fProfiley = _tstof(szTemp);
-	KSJ3D_SetYResolution(m_nDeviceCurSel, m_fProfiley);
+	TRACE_API(KSJ3D_SetYResolution(m_nDeviceCurSel, m_fProfiley), GetParent());
 	GetDlgItem(IDC_EDIT_Y)->SetWindowText(szTemp);
 
-	KSJ3D_GetDataTriggerInternalFrequency(m_nDeviceCurSel, &nvalue);
-	KSJINI_GetDWORD(hKSJIni, _T("DataTrigger"), _T("FrameRate"), nvalue, (DWORD*)&m_nInternalFrequencyHz);
+	TRACE_API(KSJ3D_GetDataTriggerInternalFrequency(m_nDeviceCurSel, &nvalue);
+	KSJINI_GetDWORD(hKSJIni, _T("DataTrigger"), _T("FrameRate"), nvalue, (DWORD*)&m_nInternalFrequencyHz), GetParent());
 	SetDlgItemInt(IDC_EDIT_FIXED_FRAME_RATE, m_nInternalFrequencyHz);
-	KSJ3D_SetDataTriggerInternalFrequency(m_nDeviceCurSel, m_nInternalFrequencyHz);
+	TRACE_API(KSJ3D_SetDataTriggerInternalFrequency(m_nDeviceCurSel, m_nInternalFrequencyHz), GetParent());
 }
 
 void CTrigger::Writeini(HANDLE hKSJIni)

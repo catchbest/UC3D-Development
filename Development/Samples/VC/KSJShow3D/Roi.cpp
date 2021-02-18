@@ -46,14 +46,14 @@ void CRoi::OnBnClickedButtonSetroi()
 	m_nRowSize = GetDlgItemInt(IDC_EDIT_ROW_SIZE);
 	m_nColStart = GetDlgItemInt(IDC_EDIT_COL_START);
 	m_nRowStart = GetDlgItemInt(IDC_EDIT_ROW_START);
-	KSJ3D_SetRoi(m_nDeviceCurSel, m_nColStart, m_nRowStart, m_nColSize, m_nRowSize);
-	KSJ3D_GetRoi(m_nDeviceCurSel, &m_nColStart, &m_nRowStart, &m_nColSize, &m_nRowSize);
+	TRACE_API(KSJ3D_SetRoi(m_nDeviceCurSel, m_nColStart, m_nRowStart, m_nColSize, m_nRowSize), GetParent());
+	TRACE_API(KSJ3D_GetRoi(m_nDeviceCurSel, &m_nColStart, &m_nRowStart, &m_nColSize, &m_nRowSize), GetParent());
 	SetDlgItemInt(IDC_EDIT_COL_START, m_nColStart);
 	SetDlgItemInt(IDC_EDIT_ROW_START, m_nRowStart);
 	SetDlgItemInt(IDC_EDIT_COL_SIZE, m_nColSize);
 	SetDlgItemInt(IDC_EDIT_ROW_SIZE, m_nRowSize);
 	float fFovNear, fFovFar;
-	KSJ3D_GetMeasurementRange(m_nDeviceCurSel, &m_fZMin, &m_fZMax, &fFovNear, &fFovFar);
+	TRACE_API(KSJ3D_GetMeasurementRange(m_nDeviceCurSel, &m_fZMin, &m_fZMax, &fFovNear, &fFovFar), GetParent());
 	char szTemp[32];
 	if (m_fZMin < 0) m_fZMin = 0;
 	_stprintf_s(szTemp, _T("%.1f"), m_fZMin);
@@ -69,7 +69,7 @@ void CRoi::OnEnChangeEditLow()
 	TCHAR str[32];
 	GetDlgItem(IDC_EDIT_LOW)->GetWindowText(str, 32);
 	m_fZMin = _tstof(str);
-	KSJ3D_SetZMap(m_nDeviceCurSel, m_fZMin, m_fZMax);
+	TRACE_API(KSJ3D_SetZMap(m_nDeviceCurSel, m_fZMin, m_fZMax), GetParent());
 }
 
 
@@ -79,7 +79,7 @@ void CRoi::OnEnChangeEditHigh2()
 	TCHAR str[32];
 	GetDlgItem(IDC_EDIT_HIGH2)->GetWindowText(str, 32);
 	m_fZMax = _tstof(str);
-	KSJ3D_SetZMap(m_nDeviceCurSel, m_fZMin, m_fZMax);
+	TRACE_API(KSJ3D_SetZMap(m_nDeviceCurSel, m_fZMin, m_fZMax), GetParent());
 }
 
 void CRoi::Readini(HANDLE hKSJIni)
@@ -88,7 +88,7 @@ void CRoi::Readini(HANDLE hKSJIni)
 	int nRowStart;
 	int nColSize;
 	int nRowSize;
-	KSJ3D_GetRoi(m_nDeviceCurSel, &nColStart, &nRowStart, &nColSize, &nRowSize);
+	TRACE_API(KSJ3D_GetRoi(m_nDeviceCurSel, &nColStart, &nRowStart, &nColSize, &nRowSize), GetParent());
 	KSJINI_GetDWORD(hKSJIni, _T("Param"), _T("ColStart"), nColStart, (DWORD*)&m_nColStart);
 	SetDlgItemInt(IDC_EDIT_COL_START, m_nColStart);
 	KSJINI_GetDWORD(hKSJIni, _T("Param"), _T("RowStart"), nRowStart, (DWORD*)&m_nRowStart);
@@ -97,14 +97,14 @@ void CRoi::Readini(HANDLE hKSJIni)
 	SetDlgItemInt(IDC_EDIT_COL_SIZE, m_nColSize);
 	KSJINI_GetDWORD(hKSJIni, _T("Param"), _T("RowSize"), nRowSize, (DWORD*)&m_nRowSize);
 	SetDlgItemInt(IDC_EDIT_ROW_SIZE, m_nRowSize);
-	KSJ3D_SetRoi(m_nDeviceCurSel, m_nColStart, m_nRowStart, m_nColSize, m_nRowSize);
-	KSJ3D_GetRoiMax(m_nDeviceCurSel, &m_nMaxColSize, &m_nMaxRowSize);
+	TRACE_API(KSJ3D_SetRoi(m_nDeviceCurSel, m_nColStart, m_nRowStart, m_nColSize, m_nRowSize), GetParent());
+	TRACE_API(KSJ3D_GetRoiMax(m_nDeviceCurSel, &m_nMaxColSize, &m_nMaxRowSize), GetParent());
 	float fFovNear, fFovFar;
 	float fMax;
 	TCHAR szText[64] = { 0 };
 	TCHAR szTemp[64];
-	KSJ3D_GetMeasurementRange(m_nDeviceCurSel, &m_fZMin, &m_fZMax, &fFovNear, &fFovFar);
-	KSJ3D_GetMeasurementRangeMax(m_nDeviceCurSel, &fMax, &m_fFovNear, &m_fFovFar);
+	TRACE_API(KSJ3D_GetMeasurementRange(m_nDeviceCurSel, &m_fZMin, &m_fZMax, &fFovNear, &fFovFar), GetParent());
+	TRACE_API(KSJ3D_GetMeasurementRangeMax(m_nDeviceCurSel, &fMax, &m_fFovNear, &m_fFovFar), GetParent());
 	if (m_fZMin < 0) m_fZMin = 0;
 	_stprintf_s(szText, _T("%.1f"), m_fZMin);
 	KSJINI_GetString(hKSJIni, _T("3D"), _T("LOW"), szText, szTemp);

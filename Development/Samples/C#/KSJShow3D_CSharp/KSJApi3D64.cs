@@ -182,5 +182,14 @@ namespace KSJ3DDemoCShape64
         [DllImport("KSJApi64.dll")]
         public static extern int KSJ3D_HelperSaveToPCD(int nWidth, int nHeight, IntPtr pfX, IntPtr pfY, IntPtr pfZ, string pszFileName);
 
+        [DllImport("KSJApi64.dll")]
+        public static extern int KSJ3D_GetCameraName(int nChannel, IntPtr pcszName);
+
+        [DllImport("KSJApi64.dll")]
+        public static extern int KSJ3D_DeviceOpen(int nChannel);
+
+        [DllImport("KSJApi64.dll")]
+        public static extern int KSJ3D_DeviceClose(int nChanne);
+
     }
 }

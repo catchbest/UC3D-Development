@@ -39,7 +39,7 @@ namespace KSJ3DDemoCShape
             m_PCICallback = new KSJApi3D.KSJ_POINT_CLOUD_IMAGE_CALLBACK(PCICallback);
 
             m_open = false;
-            high = 260;
+            high = 300;
             this.pictureBox_preview.MouseWheel += new MouseEventHandler(pictureBox_preview_MouseWheel);//控件滚轮事件
             this.pictureBox_zmap.MouseWheel += new MouseEventHandler(pictureBox_zmap_MouseWheel);
         }
@@ -162,9 +162,10 @@ namespace KSJ3DDemoCShape
 
         unsafe private void LiveCallback(int nChannel, IntPtr pData, int nWidth, int nHeight, int nBitCount, IntPtr lpContext)//预览回调函数
         {
+
             Marshal.Copy(pData, ys, 0, nWidth * nHeight);
             bitmap = BytesToBitmap(ys, nWidth, nHeight, nBitCount);//转换位图
-            if(!init)//未进行过宽高比例计算
+            if (!init)//未进行过宽高比例计算
             {
                 float proportion = (float)pictureBox_preview.Width / (float)pictureBox_preview.Height;
                 float proportion_bmp = (float)nWidth / (float)nHeight;
@@ -185,7 +186,7 @@ namespace KSJ3DDemoCShape
                     m_ptBmp = new Point((int)(offset / m_nScale), 0);
                 }
                 init = true;//进行设置后标记
-                
+
             }
 
         }
@@ -198,12 +199,12 @@ namespace KSJ3DDemoCShape
 
         private void PICallback(int nChannel, IntPtr pData, int nWidth, int nHeight, int nBitCount, IntPtr lpContext)//轮廓显示
         {
-            System.Diagnostics.Debug.WriteLine("轮廓显示");
+            //System.Diagnostics.Debug.WriteLine("轮廓显示");
             Marshal.Copy(pData, ys2, 0, nWidth * nHeight);
             bitmap2 = BytesToBitmap(ys2, nWidth, nHeight, nBitCount);//转换位图
             if (!initzmap)//未进行过宽高比例计算
             {
-                System.Diagnostics.Debug.WriteLine("计算轮廓比例");
+                //System.Diagnostics.Debug.WriteLine("计算轮廓比例");
                 float proportion = (float)pictureBox_zmap.Width / (float)pictureBox_zmap.Height;
                 float proportion_bmp = (float)nWidth / (float)nHeight;
                 if (proportion < proportion_bmp)
@@ -225,7 +226,7 @@ namespace KSJ3DDemoCShape
                 initzmap = true;
             }
 
-            
+
 
             if (m_one)//如果是一次采集则停止采集
             {
@@ -234,23 +235,25 @@ namespace KSJ3DDemoCShape
             }
         }
 
+
+
         private void PCDCallback(int nChannel, int nTotalPointNum, int nProfileNum, IntPtr x, IntPtr y, IntPtr z, int nTotalLostProfileNum, IntPtr lpContext)
         {
-            System.Diagnostics.Debug.WriteLine("进入采集");
-            
+            //System.Diagnostics.Debug.WriteLine("进入采集");
+
             if (nTotalLostProfileNum > 0)//判断丢帧数
             {
-                System.Diagnostics.Debug.WriteLine("丢帧");
+                //System.Diagnostics.Debug.WriteLine("丢帧");
                 string err = string.Format("丢失{0}帧", nTotalLostProfileNum);
                 label_lost.BeginInvoke((MethodInvoker)(() => { label_lost.Text = err; }));
             }
-            else 
+            else
             {
-                System.Diagnostics.Debug.WriteLine("未丢帧");
+                //System.Diagnostics.Debug.WriteLine("未丢帧");
                 label_lost.BeginInvoke((MethodInvoker)(() => { label_lost.Text = "未丢帧"; }));
             }
 
-            if(m_auto)//自动zamp计算最大最小点
+            if (m_auto)//自动zamp计算最大最小点
             {
                 float min = 1000f, max = 0;
                 bool ret = false;
@@ -266,20 +269,20 @@ namespace KSJ3DDemoCShape
                     }
                 }
 
-                if(ret)
+                if (ret)
                 {
                     KSJApi3D.KSJ3D_SetZMap(m_nDeviceCurSel, min, max);
                 }
-                else System.Diagnostics.Debug.WriteLine("无有效数据");
+                //else System.Diagnostics.Debug.WriteLine("无有效数据");
             }
 
             if (m_save)//保存
             {
                 string t1, filename;
                 t1 = DateTime.Now.ToString("yyyy-MM-dd");
-                System.Diagnostics.Debug.WriteLine("开始保存");
+                //System.Diagnostics.Debug.WriteLine("开始保存");
 #if halcon12//使用halcon保存om3文件
-                filename = t1 + "-" + DateTime.Now.Hour.ToString() + DateTime.Now.Minute.ToString() + DateTime.Now.Second.ToString() + ".om3";
+                filename = Application.StartupPath + "\\" + t1 + "-" + DateTime.Now.Hour.ToString() + DateTime.Now.Minute.ToString() + DateTime.Now.Second.ToString() + ".om3";
                 if(checkBox1.Checked)
                 {
                     int count = 0;
@@ -303,7 +306,9 @@ namespace KSJ3DDemoCShape
 
                     HTuple hv_ObjectModel3D;
                     HOperatorSet.GenObjectModel3dFromPoints(hv_PointCoordX, hv_PointCoordY, hv_PointCoordZ, out hv_ObjectModel3D);
-                    HOperatorSet.WriteObjectModel3d(hv_ObjectModel3D, "om3", filename, "invert_normals", "false");
+                    HOperatorSet.WriteObjectModel3d(hv_ObjectModel3D, "om3",filename, "invert_normals", "false");
+                    HOperatorSet.ClearObjectModel3d(hv_ObjectModel3D);
+                    hv_ObjectModel3D.UnPinTuple();
                     System.Diagnostics.Debug.WriteLine("保存完毕");
                 }
                 else 
@@ -315,25 +320,33 @@ namespace KSJ3DDemoCShape
                     HTuple hv_ObjectModel3D;
                     HOperatorSet.XyzToObjectModel3d(Hobjx, Hobjy, Hobjz, out hv_ObjectModel3D);
                     HOperatorSet.WriteObjectModel3d(hv_ObjectModel3D, "om3", filename, "invert_normals", "false");
+                    HOperatorSet.ClearObjectModel3d(hv_ObjectModel3D);
+                    hv_ObjectModel3D.UnPinTuple();
                     System.Diagnostics.Debug.WriteLine("保存完毕");
                 }
 
 #else//不使用halcon保存pcd文件
-                filename = t1 + "-" + DateTime.Now.Hour.ToString() + DateTime.Now.Minute.ToString() + DateTime.Now.Second.ToString() + ".pcd";
+                filename = Application.StartupPath + "\\" + t1 + "-" + DateTime.Now.Hour.ToString() + DateTime.Now.Minute.ToString() + DateTime.Now.Second.ToString() + ".pcd";
                 KSJApi3D.KSJ3D_HelperSaveToPCD(m_nColSize, m_nNumberOfProfiles, x, y, z, filename);
-                System.Diagnostics.Debug.WriteLine("保存完毕");
+                //System.Diagnostics.Debug.WriteLine("保存完毕");
 #endif
+            }
+
+            if (m_one)//如果是一次采集则停止采集
+            {
+                m_one = false;
+                checkBox_one.BeginInvoke((MethodInvoker)(() => { checkBox_one.Checked = false; }));
             }
         }
 
         private void PCICallback(int nChannel, IntPtr pData, int nWidth, int nHeight, int nBitCount, IntPtr lpContext)//显示3d图形
         {
-            System.Diagnostics.Debug.WriteLine("3d显示");
+            //System.Diagnostics.Debug.WriteLine("3d显示");
             Marshal.Copy(pData, ys2, 0, nWidth * nHeight);
             bitmap2 = BytesToBitmap(ys2, nWidth, nHeight, nBitCount);//转换位图
             if (!initzmap)//未进行过宽高比例计算
             {
-                System.Diagnostics.Debug.WriteLine("计算3d比例");
+                //System.Diagnostics.Debug.WriteLine("计算3d比例");
                 float proportion = (float)pictureBox_zmap.Width / (float)pictureBox_zmap.Height;
                 float proportion_bmp = (float)nWidth / (float)nHeight;
                 if (proportion < proportion_bmp)
@@ -355,31 +368,16 @@ namespace KSJ3DDemoCShape
                 initzmap = true;
             }
 
-            
-            //pictureBox_zmap.Invalidate();//刷新控件
-            if (m_one)//如果是一次采集则停止采集
-            {
-                m_one = false;
-                checkBox_one.BeginInvoke((MethodInvoker)(() => { checkBox_one.Checked = false; }));
-            }
         }
 
         private void readini()//读配置文件
         {
-            int i;
             KSJApi3D.KSJ3D_START_TRIGGER_SOURCE source = KSJApi3D.KSJ3D_START_TRIGGER_SOURCE.STS_INPUT_0;
             bool bCur = true;
             string temp;
             float fMin=0, fMax=0;
             int nMin=0, nMax=0;
-            string[] szStartEndMode = { "disable", "Rising Edge", "Falling Edge" };
-            string [] szTriggerMode ={"Free Run","Internal","External"};
-            string[] szTriggerMethod = { "Rising Edge", "Falling Edge" };
-            string[] strtype = { "轮廓", "3D" };
-            for (i = 0; i < 3; i++) comboBox_startmode.Items.Insert(i, szStartEndMode[i]);
-            for (i = 0; i < 3; i++) comboBox_datamode.Items.Insert(i, szTriggerMode[i]);
-            for (i = 0; i < 2; i++) comboBox_datamothod.Items.Insert(i, szTriggerMethod[i]);
-            for (i = 0; i < 2; i++) comboBox_type.Items.Insert(i, strtype[i]);
+
             numericUpDown_delay.Minimum = 0;
             numericUpDown_delay.Maximum = 65535;
             numericUpDown_filter.Minimum = 0;
@@ -476,9 +474,15 @@ namespace KSJ3DDemoCShape
 
                 KSJApi3D.KSJ3D_Get3DLaserLineBrightnessThreshold(m_nDeviceCurSel, ref m_nThreshold);
                 KSJApi3D.KSJ3D_GetYResolution(m_nDeviceCurSel, ref m_fProfiley);
-                KSJApi3D.KSJ3D_GetZMap(m_nDeviceCurSel, ref m_fZMin, ref m_fZMax);
+                //KSJApi3D.KSJ3D_GetZMap(m_nDeviceCurSel, ref m_fZMin, ref m_fZMax);
+                float fFovNear = 0, fFovFar = 0;
+                KSJApi3D.KSJ3D_GetMeasurementRange(m_nDeviceCurSel, ref m_fZMin, ref m_fZMax, ref fFovNear, ref fFovFar);
+                if (m_fZMin < 0) m_fZMin = 0;
+                numericUpDown_low.Value = (decimal)m_fZMin;
+                numericUpDown_high.Value = (decimal)m_fZMax;
                 m_3dDataType = 1;
             }
+
 
             numericUpDown_delay.Value = m_nStartTriggerDelay;//控件设置
             numericUpDown_filter.Value = m_StartTriggerFilter;
@@ -500,7 +504,8 @@ namespace KSJ3DDemoCShape
             numericUpDown_low.Value = (decimal)m_fZMin;
             numericUpDown_high.Value = (decimal)m_fZMax;
             comboBox_type.SelectedIndex = m_3dDataType;
-
+            comboBox_laser.SelectedIndex = 2;
+            KSJApi3D.KSJ3D_LaserModeSet(m_nDeviceCurSel, KSJApi3D.KSJ_LASER_MODE.LM_FLASH);
             KSJApi3D.KSJ3D_SetStartTriggerParameters(m_nDeviceCurSel, m_StartTriggerFilter, m_nStartTriggerDelay);//相机设置
             KSJApi3D.KSJ3D_SetMaxNumberOfProfilesToCapture(m_nDeviceCurSel, m_nNumberOfProfiles);
             KSJApi3D.KSJ3D_SetDataTriggerMode(m_nDeviceCurSel, m_DataTriggerMode);
@@ -569,74 +574,38 @@ namespace KSJ3DDemoCShape
             System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = false;
             this.Width = 1225;
             this.Height = 700;
+            int i;
+            string[] szStartEndMode = { "disable", "Rising Edge", "Falling Edge" };
+            string[] szTriggerMode = { "Free Run", "Internal", "External" };
+            string[] szTriggerMethod = { "Rising Edge", "Falling Edge" };
+            string[] strtype = { "轮廓", "3D" };
+            string[] szLaser = { "Open", "Close", "Flash" };
+            for (i = 0; i < 3; i++) comboBox_startmode.Items.Insert(i, szStartEndMode[i]);
+            for (i = 0; i < 3; i++) comboBox_datamode.Items.Insert(i, szTriggerMode[i]);
+            for (i = 0; i < 2; i++) comboBox_datamothod.Items.Insert(i, szTriggerMethod[i]);
+            for (i = 0; i < 2; i++) comboBox_type.Items.Insert(i, strtype[i]);
+            for (i = 0; i < 3; i++) comboBox_laser.Items.Insert(i, szLaser[i]);
+            ksjlog = new IniFiles(Application.StartupPath + "\\KSJApi.ini");
+            m_init = 0;
             KSJApi3D.KSJ3D_Inital();
-            KSJApi3D.KSJ3D_GetDeviceCount(ref m_nDeviceNum);
-            if (m_nDeviceNum == 0)//未找到相机，界面控件不可用
-            {
-                checkBox_starttrigger.Enabled = false;
-                checkBox_roi.Enabled = false;
-                checkBox_param.Enabled = false;
-                checkBox_datatrigger.Enabled = false;
-                checkBox_3d.Enabled = false;
-                checkBox_zmap.Enabled = false;
-                checkBox_preview.Enabled = false;
-                checkBox_one.Enabled = false;
-                checkBox_capture.Enabled = false;
-                numericUpDown_line.Enabled = false;
-                comboBox_type.Enabled = false;
-                checkBox_save.Enabled = false;
-                label_device.Text = "未查询到相机";
-                return;
-            }
-
-            bool bIs3DCamera = false;
-            KSJApi3D.KSJ3D_Is3DCamera(m_nDeviceCurSel, ref bIs3DCamera);
-            if (bIs3DCamera)//类型为3d相机，读配置文件
-            {
-                int pnDeviceType=0, pnSerialNumber=0;
-                ushort pwFirmwareVersion=0,pwFpgaVersion=0;
-                KSJApi3D.KSJ3D_GetDeviceInformation(m_nDeviceCurSel, ref pnDeviceType, ref pnSerialNumber, ref pwFirmwareVersion, ref pwFpgaVersion);
-                string para = String.Format("\\param{0}.ini", pnDeviceType);
-                ini = new IniFiles(Application.StartupPath + para);
-                readini();
-                m_open = true;
-                m_auto = true;
-                checkBox_auto.Checked = true;
-#if halcon12//使用halcon可以设置有效点,默认打开
-                checkBox1.Checked = true;
-                KSJApi3D.KSJ3D_SetObliterateInvalidData(m_nDeviceCurSel, true);
-#else//存pcd模式关闭有效点设置
-                checkBox1.Enabled = false;
-                KSJApi3D.KSJ3D_SetObliterateInvalidData(m_nDeviceCurSel, false);
-#endif
-                Timer_GET_FRAME_RATE.Interval = 50;
-                Timer_GET_FRAME_RATE.Start();
-                label_device.Text = "相机连接成功";
-            }
-            else//非3d相机，界面不可用
-            {
-                checkBox_starttrigger.Enabled = false;
-                checkBox_roi.Enabled = false;
-                checkBox_param.Enabled = false;
-                checkBox_datatrigger.Enabled = false;
-                checkBox_3d.Enabled = false;
-                checkBox_zmap.Enabled = false;
-                checkBox_preview.Enabled = false;
-                checkBox_one.Enabled = false;
-                checkBox_capture.Enabled = false;
-                numericUpDown_line.Enabled = false;
-                comboBox_type.Enabled = false;
-                checkBox_save.Enabled = false;
-                label_device.Text = "相机非3d相机";
-                return;
-            }
-           
+            m_nDeviceCurSel = 0;
+            UpdateDeviceList();//获取相机的列表插入到界面上放下拉框
+            UpdateInterface();
+            m_init = 1;
             checkBox_starttrigger.SetBounds(40, 110, 170, 25);//初始化设置按钮
             checkBox_roi.SetBounds(40, 150, 170, 25);
             checkBox_param.SetBounds(40, 190, 170, 25);
             checkBox_datatrigger.SetBounds(40, 230, 170, 25);
-            checkBox_3d.SetBounds(40, 270, 170, 25);
-            checkBox_zmap.SetBounds(40, 310, 170, 25);
+            checkBox_log.SetBounds(40, 270, 170, 25);
+        }
+
+        private bool CheckCameraName(string name)
+        {
+            for (int i = 0; i < name.Length; i++)
+	        {
+		        if (name[i]<0x20 || name[i]>0x7F) return false;
+	        }
+	        return true;
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)//退出界面
@@ -648,6 +617,147 @@ namespace KSJ3DDemoCShape
             }
                 
             KSJApi3D.KSJ3D_UnInitial();//释放3d相机资源
+        }
+
+        public struct DEVICEINFO
+        {
+            public int nIndex;
+            public int DeviceType;
+            public int nSerials;
+            public ushort wFirmwareVersion;
+            public ushort wFpgaVersion;
+        };
+
+        public DEVICEINFO[] m_DeviceInfo = new DEVICEINFO[m_nMaxDevice];
+        public const int m_nMaxDevice = 64;
+
+        public void UpdateDeviceList()
+        {
+            KSJApi3D.KSJ3D_UnInitial();
+            KSJApi3D.KSJ3D_Inital();
+            KSJApi3D.KSJ3D_GetDeviceCount(ref m_nDeviceNum);
+            if (m_nDeviceNum == 0)//未找到相机，界面控件不可用
+            {
+                m_nDeviceCurSel = -1;
+                checkBox_starttrigger.Enabled = false;
+                checkBox_roi.Enabled = false;
+                checkBox_param.Enabled = false;
+                checkBox_datatrigger.Enabled = false;
+                checkBox_log.Enabled = false;
+                checkBox_preview.Enabled = false;
+                checkBox_one.Enabled = false;
+                checkBox_capture.Enabled = false;
+                numericUpDown_line.Enabled = false;
+                comboBox_type.Enabled = false;
+                checkBox_save.Enabled = false;
+                label_device.Text = "未查询到相机";
+                return;
+            }
+
+            if (m_nDeviceCurSel >= m_nDeviceNum)
+            {
+                m_nDeviceCurSel = 0;
+            }
+            bool bIs3DCamera = false;
+            string CameraName = "";
+            IntPtr pszCameraName = Marshal.AllocCoTaskMem(64);
+            ComboBox_DEVICE_LIST.Items.Clear();
+            for (int i = 0; i < m_nDeviceNum; i++)
+            {
+                m_DeviceInfo[i].nIndex = i;
+                KSJApi3D.KSJ3D_GetDeviceInformation(i, ref m_DeviceInfo[i].DeviceType, ref m_DeviceInfo[i].nSerials, ref m_DeviceInfo[i].wFirmwareVersion, ref m_DeviceInfo[i].wFpgaVersion);
+                byte btMajVersion = (byte)((m_DeviceInfo[i].wFirmwareVersion & 0xFF00) >> 8);		// 得到主版本号
+                byte btMinVersion = (byte)(m_DeviceInfo[i].wFirmwareVersion & 0x00FF);				// 得到副版本号
+
+                byte btFpgaMajVersion = (byte)((m_DeviceInfo[i].wFpgaVersion & 0xFF00) >> 8);		// 得到主版本号
+                byte btFpgaMinVersion = (byte)(m_DeviceInfo[i].wFpgaVersion & 0x00FF);				// 得到副版本号
+                
+                KSJApi3D.KSJ3D_Is3DCamera(m_nDeviceCurSel, ref bIs3DCamera);
+                if (bIs3DCamera)
+                {
+                    KSJApi3D.KSJ3D_GetCameraName(i, pszCameraName);
+                    CameraName = Marshal.PtrToStringAnsi(pszCameraName);
+                }
+                else CameraName = "not 3DCamera";
+                if (!CheckCameraName(CameraName)) CameraName = "3DCamera";
+                string szText = String.Format("Type({0})-Serials({1})-FwVer({2}.{3})-FpgaVer({4}.{5})",
+                                        CameraName, m_DeviceInfo[i].nSerials, btMajVersion, btMinVersion, btFpgaMajVersion, btFpgaMinVersion);
+                ComboBox_DEVICE_LIST.Items.Insert(i, szText);
+            }
+
+            ComboBox_DEVICE_LIST.SelectedIndex = m_nDeviceCurSel;
+        }
+
+        private void UpdateInterface()//获取选中相机的数据显示在界面上
+        {
+            if (m_nDeviceCurSel == -1) return;
+            for (int i = 0; i < m_nDeviceNum; i++)
+            {
+                if (i != m_nDeviceCurSel) KSJApi3D.KSJ3D_DeviceClose(i);
+            }
+
+            int nRet = KSJApi3D.KSJ3D_DeviceOpen(m_nDeviceCurSel);
+	        if (nRet == 1)
+            {
+                bool bIs3DCamera = false;
+                string CameraName = "";
+                IntPtr pszCameraName = Marshal.AllocCoTaskMem(64);
+                KSJApi3D.KSJ3D_Is3DCamera(m_nDeviceCurSel, ref bIs3DCamera);
+                if (bIs3DCamera)//类型为3d相机，读配置文件
+                {
+                    KSJApi3D.KSJ3D_GetCameraName(m_nDeviceCurSel, pszCameraName);
+                    CameraName = Marshal.PtrToStringAnsi(pszCameraName);
+                    if (!CheckCameraName(CameraName)) CameraName = "3DCamera";
+                    string para = String.Format("\\param_{0}_{1}.ini", CameraName, m_DeviceInfo[m_nDeviceCurSel].nSerials);
+                    ini = new IniFiles(Application.StartupPath + para);
+                    readini();
+                    m_open = true;
+                    m_auto = true;
+                    string temp = ksjlog.IniReadValue("Manage", "LogEnable");
+                    if (temp == "1") checkBox_ksjlog.Checked = true;
+                    else checkBox_ksjlog.Checked = false;
+
+                    
+                    checkBox_auto.Checked = true;
+#if halcon12//使用halcon可以设置有效点,默认打开
+                checkBox1.Checked = true;
+                KSJApi3D.KSJ3D_SetObliterateInvalidData(m_nDeviceCurSel, true);
+#else//存pcd模式关闭有效点设置
+                    checkBox1.Enabled = false;
+                    KSJApi3D.KSJ3D_SetObliterateInvalidData(m_nDeviceCurSel, false);
+#endif
+                    KSJApi3D.KSJ3D_LaserModeSet(m_nDeviceCurSel, KSJApi3D.KSJ_LASER_MODE.LM_FLASH);
+                    Timer_GET_FRAME_RATE.Interval = 50;
+                    Timer_GET_FRAME_RATE.Start();
+                    label_device.Text = "相机连接成功";
+                    checkBox_starttrigger.Enabled = true;
+                    checkBox_roi.Enabled = true;
+                    checkBox_param.Enabled = true;
+                    checkBox_datatrigger.Enabled = true;
+                    checkBox_log.Enabled = true;
+                    checkBox_preview.Enabled = true;
+                    checkBox_one.Enabled = true;
+                    checkBox_capture.Enabled = true;
+                    numericUpDown_line.Enabled = true;
+                    comboBox_type.Enabled = true;
+                    checkBox_save.Enabled = true;
+                    return;
+                }
+                else label_device.Text = "相机非3d相机";
+            }
+            else label_device.Text = "相机已被其他进程打开";
+
+            checkBox_starttrigger.Enabled = false;
+            checkBox_roi.Enabled = false;
+            checkBox_param.Enabled = false;
+            checkBox_datatrigger.Enabled = false;
+            checkBox_log.Enabled = false;
+            checkBox_preview.Enabled = false;
+            checkBox_one.Enabled = false;
+            checkBox_capture.Enabled = false;
+            numericUpDown_line.Enabled = false;
+            comboBox_type.Enabled = false;
+            checkBox_save.Enabled = false;
         }
 
         private void checkBox_preview_CheckedChanged(object sender, EventArgs e)//预览开关
@@ -685,6 +795,8 @@ namespace KSJ3DDemoCShape
                 numericUpDown_delay2.Enabled = false;
                 numericUpDown_period.Enabled = false;
                 numericUpDown_filter2.Enabled = false;
+                comboBox_laser.Enabled = false;
+                init = false;
             }
             else
             {
@@ -708,6 +820,7 @@ namespace KSJ3DDemoCShape
                 numericUpDown_rowstart.Enabled = true;
 
                 comboBox_datamode.Enabled = true;
+                comboBox_laser.Enabled = true;
                 comboBox_startmode.SelectedIndex = m_startmode;//回复触发模式
                 comboBox_datamode.SelectedIndex = m_triggermode;
                 datatriger(m_triggermode);//根据触发模式设置界面
@@ -759,6 +872,8 @@ namespace KSJ3DDemoCShape
                 numericUpDown_delay2.Enabled = false;
                 numericUpDown_period.Enabled = false;
                 numericUpDown_filter2.Enabled = false;
+                comboBox_laser.Enabled = false;
+                init = false;
             }
             else
             {
@@ -799,6 +914,7 @@ namespace KSJ3DDemoCShape
                 numericUpDown_delay2.Enabled = true;
                 numericUpDown_period.Enabled = true;
                 numericUpDown_filter2.Enabled = true;
+                comboBox_laser.Enabled = true;
                 datatriger(comboBox_datamode.SelectedIndex);//根据触发模式设置界面
             }
         }
@@ -820,7 +936,6 @@ namespace KSJ3DDemoCShape
                     ys2 = new byte[m_nColSize * 256];
                     KSJApi3D.KSJ3D_RegisterProfileDataCB(m_nDeviceCurSel, m_PDCallback, lpContext);//轮廓回调函数
                     KSJApi3D.KSJ3D_RegisterProfileImageCB(m_nDeviceCurSel, m_PICallback, lpContext);
-                    
                 }
 
                 initzmap = false;
@@ -850,6 +965,8 @@ namespace KSJ3DDemoCShape
                 numericUpDown_delay2.Enabled = false;
                 numericUpDown_period.Enabled = false;
                 numericUpDown_filter2.Enabled = false;
+                comboBox_laser.Enabled = false;
+                init = false;
             }
             else
             {
@@ -889,6 +1006,7 @@ namespace KSJ3DDemoCShape
                 numericUpDown_delay2.Enabled = true;
                 numericUpDown_period.Enabled = true;
                 numericUpDown_filter2.Enabled = true;
+                comboBox_laser.Enabled = true;
                 datatriger(comboBox_datamode.SelectedIndex);//根据触发模式设置界面
             }
         }
@@ -935,6 +1053,8 @@ namespace KSJ3DDemoCShape
             label22.Visible = false;
             label19.Visible = false;
             label18.Visible = false;
+            label32.Visible = false;
+            comboBox_laser.Visible = false;
 
             numericUpDown_t.Visible = false;
             numericUpDown_y.Visible = false;
@@ -948,6 +1068,8 @@ namespace KSJ3DDemoCShape
             label28.Visible = false;
             label29.Visible = false;
             label30.Visible = false;
+
+            checkBox_ksjlog.Visible = false;
         }
 
         private void checkBox_starttrigger_CheckedChanged(object sender, EventArgs e)//启动触发模式设置
@@ -959,8 +1081,7 @@ namespace KSJ3DDemoCShape
                 checkBox_roi.Checked = false;
                 checkBox_param.Checked = false;
                 checkBox_datatrigger.Checked = false;
-                checkBox_3d.Checked = false;
-                checkBox_zmap.Checked = false;
+                checkBox_log.Checked = false;
                 comboBox_startmode.Visible = true;
                 numericUpDown_delay.Visible = true;
                 numericUpDown_filter.Visible = true;
@@ -974,8 +1095,7 @@ namespace KSJ3DDemoCShape
                 checkBox_roi.SetBounds(40, 150 + high, 170, 25);
                 checkBox_param.SetBounds(40, 190 + high, 170, 25);
                 checkBox_datatrigger.SetBounds(40, 230 + high, 170, 25);
-                checkBox_3d.SetBounds(40, 270 + high, 170, 25);
-                checkBox_zmap.SetBounds(40, 310 + high, 170, 25);
+                checkBox_log.SetBounds(40, 270 + high, 170, 25);
 
                 label4.SetBounds(40, 150, 60, 20);
                 comboBox_startmode.SetBounds(110, 150, 130, 20);
@@ -992,8 +1112,7 @@ namespace KSJ3DDemoCShape
                 checkBox_roi.SetBounds(40, 150, 170, 25);
                 checkBox_param.SetBounds(40, 190, 170, 25);
                 checkBox_datatrigger.SetBounds(40, 230, 170, 25);
-                checkBox_3d.SetBounds(40, 270, 170, 25);
-                checkBox_zmap.SetBounds(40, 310, 170, 25);
+                checkBox_log.SetBounds(40, 270, 170, 25);
             }
         }
 
@@ -1006,8 +1125,7 @@ namespace KSJ3DDemoCShape
                 checkBox_starttrigger.Checked = false;
                 checkBox_param.Checked = false;
                 checkBox_datatrigger.Checked = false;
-                checkBox_3d.Checked = false;
-                checkBox_zmap.Checked = false;
+                checkBox_log.Checked = false;
                 numericUpDown_width.Visible = true;
                 numericUpDown_height.Visible = true;
                 numericUpDown_colstart.Visible = true;
@@ -1017,13 +1135,18 @@ namespace KSJ3DDemoCShape
                 label7.Visible = true;
                 label9.Visible = true;
                 label10.Visible = true;
+                numericUpDown_low.Visible = true;
+                numericUpDown_high.Visible = true;
+                label27.Visible = true;
+                label28.Visible = true;
+                label29.Visible = true;
+                label30.Visible = true;
 
                 checkBox_starttrigger.SetBounds(40, 110, 170, 25);
                 checkBox_roi.SetBounds(40, 150, 170, 25);
                 checkBox_param.SetBounds(40, 190 + high, 170, 25);
                 checkBox_datatrigger.SetBounds(40, 230 + high, 170, 25);
-                checkBox_3d.SetBounds(40, 270 + high, 170, 25);
-                checkBox_zmap.SetBounds(40, 310 + high, 170, 25);
+                checkBox_log.SetBounds(40, 270 + high, 170, 25);
 
                 label8.SetBounds(40, 190, 60, 20);
                 numericUpDown_width.SetBounds(110, 190, 60, 20);
@@ -1034,6 +1157,13 @@ namespace KSJ3DDemoCShape
                 label10.SetBounds(40, 310, 60, 20);
                 numericUpDown_rowstart.SetBounds(110, 310, 60, 20);
                 button_setfov.SetBounds(40, 350, 40, 25);
+
+                label27.SetBounds(40, 390, 60, 20);
+                numericUpDown_low.SetBounds(110, 390, 60, 20);
+                label29.SetBounds(180, 390, 60, 20);
+                label28.SetBounds(40, 430, 60, 20);
+                numericUpDown_high.SetBounds(110, 430, 60, 20);
+                label30.SetBounds(180, 430, 60, 20);
             }
             else
             {
@@ -1041,8 +1171,7 @@ namespace KSJ3DDemoCShape
                 checkBox_roi.SetBounds(40, 150, 170, 25);
                 checkBox_param.SetBounds(40, 190, 170, 25);
                 checkBox_datatrigger.SetBounds(40, 230, 170, 25);
-                checkBox_3d.SetBounds(40, 270, 170, 25);
-                checkBox_zmap.SetBounds(40, 310, 170, 25);
+                checkBox_log.SetBounds(40, 270, 170, 25);
             }
         }
 
@@ -1055,24 +1184,27 @@ namespace KSJ3DDemoCShape
                 checkBox_starttrigger.Checked = false;
                 checkBox_roi.Checked = false;
                 checkBox_datatrigger.Checked = false;
-                checkBox_3d.Checked = false;
-                checkBox_zmap.Checked = false;
+                checkBox_log.Checked = false;
                 numericUpDown_gain.Visible = true;
                 numericUpDown_expouse.Visible = true;
                 label12.Visible = true;
                 label11.Visible = true;
+                numericUpDown_t.Visible = true;
+                label26.Visible = true;
 
                 checkBox_starttrigger.SetBounds(40, 110, 170, 25);
                 checkBox_roi.SetBounds(40, 150, 170, 25);
                 checkBox_param.SetBounds(40, 190, 170, 25);
                 checkBox_datatrigger.SetBounds(40, 230 + high, 170, 25);
-                checkBox_3d.SetBounds(40, 270 + high, 170, 25);
-                checkBox_zmap.SetBounds(40, 310 + high, 170, 25);
+                checkBox_log.SetBounds(40, 270 + high, 170, 25);
 
                 label12.SetBounds(40, 230, 60, 20);
                 numericUpDown_gain.SetBounds(110, 230, 60, 20);
                 label11.SetBounds(40, 260, 60, 20);
                 numericUpDown_expouse.SetBounds(110, 260, 60, 20);
+
+                label26.SetBounds(40, 290, 60, 20);
+                numericUpDown_t.SetBounds(110, 290, 60, 20);
             }
             else
             {
@@ -1080,8 +1212,7 @@ namespace KSJ3DDemoCShape
                 checkBox_roi.SetBounds(40, 150, 170, 25);
                 checkBox_param.SetBounds(40, 190, 170, 25);
                 checkBox_datatrigger.SetBounds(40, 230, 170, 25);
-                checkBox_3d.SetBounds(40, 270, 170, 25);
-                checkBox_zmap.SetBounds(40, 310, 170, 25);
+                checkBox_log.SetBounds(40, 270, 170, 25);
             }
         }
 
@@ -1094,8 +1225,7 @@ namespace KSJ3DDemoCShape
                 checkBox_starttrigger.Checked = false;
                 checkBox_roi.Checked = false;
                 checkBox_param.Checked = false;
-                checkBox_3d.Checked = false;
-                checkBox_zmap.Checked = false;
+                checkBox_log.Checked = false;
                 comboBox_datamode.Visible = true;
                 numericUpDown_rate.Visible = true;
                 comboBox_datamothod.Visible = true;
@@ -1111,13 +1241,16 @@ namespace KSJ3DDemoCShape
                 label22.Visible = true;
                 label19.Visible = true;
                 label18.Visible = true;
-
+                numericUpDown_y.Visible = true;
+                label25.Visible = true;
+                label24.Visible = true;
+                label32.Visible = true;
+                comboBox_laser.Visible = true;
                 checkBox_starttrigger.SetBounds(40, 110, 170, 25);
                 checkBox_roi.SetBounds(40, 150, 170, 25);
                 checkBox_param.SetBounds(40, 190, 170, 25);
                 checkBox_datatrigger.SetBounds(40, 230, 170, 25);
-                checkBox_3d.SetBounds(40, 270 + high, 170, 25);
-                checkBox_zmap.SetBounds(40, 310 + high, 170, 25);
+                checkBox_log.SetBounds(40, 270 + high, 170, 25);
 
                 label15.SetBounds(40, 270, 60, 20);
                 comboBox_datamode.SetBounds(110, 270, 150, 20);
@@ -1134,6 +1267,12 @@ namespace KSJ3DDemoCShape
                 label20.SetBounds(30, 420, 70, 20);
                 numericUpDown_filter2.SetBounds(110, 420, 60, 20);
                 label18.SetBounds(190, 420, 60, 20);
+
+                label25.SetBounds(20, 450, 80, 20);
+                numericUpDown_y.SetBounds(110, 450, 60, 20);
+                label24.SetBounds(170, 450, 80, 20);
+                label32.SetBounds(30, 480, 70, 20);
+                comboBox_laser.SetBounds(110, 480, 150, 20);
             }
             else
             {
@@ -1141,40 +1280,29 @@ namespace KSJ3DDemoCShape
                 checkBox_roi.SetBounds(40, 150, 170, 25);
                 checkBox_param.SetBounds(40, 190, 170, 25);
                 checkBox_datatrigger.SetBounds(40, 230, 170, 25);
-                checkBox_3d.SetBounds(40, 270, 170, 25);
-                checkBox_zmap.SetBounds(40, 310, 170, 25);
+                checkBox_log.SetBounds(40, 270, 170, 25);
             }
         }
 
-        private void checkBox_3d_CheckedChanged(object sender, EventArgs e)//3d参数设置
+        private void checkBox_log_CheckedChanged(object sender, EventArgs e)//LOG设置
         {
             hidecontrol();
-            bool bCheck = checkBox_3d.Checked;
+            bool bCheck = checkBox_log.Checked;
             if (bCheck)
             {
                 checkBox_starttrigger.Checked = false;
                 checkBox_roi.Checked = false;
                 checkBox_param.Checked = false;
                 checkBox_datatrigger.Checked = false;
-                checkBox_zmap.Checked = false;
-                numericUpDown_t.Visible = true;
-                numericUpDown_y.Visible = true;
-                label26.Visible = true;
-                label25.Visible = true;
-                label24.Visible = true;
+                checkBox_ksjlog.Visible = true;
 
                 checkBox_starttrigger.SetBounds(40, 110, 170, 25);
                 checkBox_roi.SetBounds(40, 150, 170, 25);
                 checkBox_param.SetBounds(40, 190, 170, 25);
                 checkBox_datatrigger.SetBounds(40, 230, 170, 25);
-                checkBox_3d.SetBounds(40, 270, 170, 25);
-                checkBox_zmap.SetBounds(40, 310 + high, 170, 25);
+                checkBox_log.SetBounds(40, 270, 170, 25);
 
-                label26.SetBounds(40, 310, 60, 20);
-                numericUpDown_t.SetBounds(110, 310, 60, 20);
-                label25.SetBounds(20, 340, 80, 20);
-                numericUpDown_y.SetBounds(110, 340, 60, 20);
-                label24.SetBounds(170, 340, 80, 20);
+                checkBox_ksjlog.SetBounds(40, 300, 80, 20);
             }
             else
             {
@@ -1182,51 +1310,7 @@ namespace KSJ3DDemoCShape
                 checkBox_roi.SetBounds(40, 150, 170, 25);
                 checkBox_param.SetBounds(40, 190, 170, 25);
                 checkBox_datatrigger.SetBounds(40, 230, 170, 25);
-                checkBox_3d.SetBounds(40, 270, 170, 25);
-                checkBox_zmap.SetBounds(40, 310, 170, 25);
-            }
-        }
-
-        private void checkBox_zmap_CheckedChanged(object sender, EventArgs e)//zmap设置
-        {
-            hidecontrol();
-            bool bCheck = checkBox_zmap.Checked;
-            if (bCheck)
-            {
-                checkBox_starttrigger.Checked = false;
-                checkBox_roi.Checked = false;
-                checkBox_param.Checked = false;
-                checkBox_datatrigger.Checked = false;
-                checkBox_3d.Checked = false;
-                numericUpDown_low.Visible = true;
-                numericUpDown_high.Visible = true;
-                label27.Visible = true;
-                label28.Visible = true;
-                label29.Visible = true;
-                label30.Visible = true;
-
-                checkBox_starttrigger.SetBounds(40, 110, 170, 25);
-                checkBox_roi.SetBounds(40, 150, 170, 25);
-                checkBox_param.SetBounds(40, 190, 170, 25);
-                checkBox_datatrigger.SetBounds(40, 230, 170, 25);
-                checkBox_3d.SetBounds(40, 270, 170, 25);
-                checkBox_zmap.SetBounds(40, 310, 170, 25);
-
-                label27.SetBounds(40, 350, 60, 20);
-                numericUpDown_low.SetBounds(110, 350, 60, 20);
-                label29.SetBounds(180, 350, 60, 20);
-                label28.SetBounds(40, 380, 60, 20);
-                numericUpDown_high.SetBounds(110, 380, 60, 20);
-                label30.SetBounds(180, 380, 60, 20);
-            }
-            else
-            {
-                checkBox_starttrigger.SetBounds(40, 110, 170, 25);
-                checkBox_roi.SetBounds(40, 150, 170, 25);
-                checkBox_param.SetBounds(40, 190, 170, 25);
-                checkBox_datatrigger.SetBounds(40, 230, 170, 25);
-                checkBox_3d.SetBounds(40, 270, 170, 25);
-                checkBox_zmap.SetBounds(40, 310, 170, 25);
+                checkBox_log.SetBounds(40, 270, 170, 25);
             }
         }
 
@@ -1239,7 +1323,20 @@ namespace KSJ3DDemoCShape
         {
             if (m_nDeviceCurSel == -1) return;
             m_3dDataType = comboBox_type.SelectedIndex;
-            
+            if (m_3dDataType==1)
+            {
+                pictureBox_preview.Location = new System.Drawing.Point(277, 82);
+                pictureBox_preview.Size = new System.Drawing.Size(451, 546);
+                pictureBox_zmap.Location = new System.Drawing.Point(750, 82);
+                pictureBox_zmap.Size = new System.Drawing.Size(451, 546);
+            }
+            else
+            {
+                pictureBox_preview.Location = new System.Drawing.Point(277, 82);
+                pictureBox_preview.Size = new System.Drawing.Size(924, 270);
+                pictureBox_zmap.Location = new System.Drawing.Point(277, 355);
+                pictureBox_zmap.Size = new System.Drawing.Size(924, 270);
+            }
         }
 
         private void numericUpDown_line_ValueChanged(object sender, EventArgs e)//设置采集行数
@@ -1396,7 +1493,7 @@ namespace KSJ3DDemoCShape
             string temp;
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                ofd.Filter = "配置文件|*.ini";
+                ofd.Filter = "配置文件|*.ffc";
                 if (ofd.ShowDialog() == DialogResult.OK)  //如果点击的是打开文件
                 {
                     path = ofd.FileName;  //获取全路径文件名
@@ -1504,12 +1601,16 @@ namespace KSJ3DDemoCShape
             numericUpDown_height.Value = m_nRowSize;
             init = false;
             initzmap = false;
+            float fFovNear = 0, fFovFar = 0;
+            KSJApi3D.KSJ3D_GetMeasurementRange(m_nDeviceCurSel, ref m_fZMin, ref m_fZMax, ref fFovNear, ref fFovFar);
+            if (m_fZMin < 0) m_fZMin = 0;
+            numericUpDown_low.Value = (decimal)m_fZMin;
+            numericUpDown_high.Value = (decimal)m_fZMax;
         }
 
         private void checkBox_auto_CheckedChanged(object sender, EventArgs e)//自动zmap设置
         {
             m_auto = checkBox_auto.Checked;
-            checkBox_zmap.Enabled = !m_auto;
         }
 
         private void checkBox1_CheckedChanged_1(object sender, EventArgs e)//采集有效点设置
@@ -1586,6 +1687,46 @@ namespace KSJ3DDemoCShape
             temp = (m_3dDataType).ToString();
             save.IniWriteValue("3D", "TYPE", temp);
             MessageBox.Show("配置文件名保存完毕");
+        }
+
+        private void comboBox_laser_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (m_nDeviceCurSel == -1) return;
+            int nIndex = comboBox_laser.SelectedIndex;
+            KSJApi3D.KSJ3D_LaserModeSet(m_nDeviceCurSel, (KSJApi3D.KSJ_LASER_MODE)nIndex);
+        }
+
+        IniFiles ksjlog;
+        int m_init;
+        private void checkBox_ksjlog_CheckedChanged(object sender, EventArgs e)
+        {
+            bool bCheck = checkBox_ksjlog.Checked;
+            if (bCheck)
+            {
+                if (m_init == 1)
+                {
+                    ksjlog.IniWriteValue("Manage", "LogEnable", "1");
+                    MessageBox.Show("打开LOG记录，重启程序生效，生成信息保存到执行程序目录KSJApiLog文件夹！");
+                }
+            }
+            else
+            {
+                ksjlog.IniWriteValue("Manage", "LogEnable", "0");
+                MessageBox.Show("关闭LOG记录，重启程序生效！");
+            }
+        }
+
+        private void ComboBox_DEVICE_LIST_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (m_init == 1)
+            {
+                m_init = 0;
+                m_nDeviceCurSel = ComboBox_DEVICE_LIST.SelectedIndex;
+                UpdateDeviceList();//获取相机的列表插入到界面上放下拉框
+                UpdateInterface();
+                m_init = 1;
+            }
+            
         }
     }
 }

@@ -22,13 +22,14 @@
 #include <afxdisp.h>        // MFC 自动化类
 #include <tchar.h>   
 #include "../../common/KSJ_GS.H"
+#define MSG_TRACE WM_USER + 110
+#define MSG_CLEAR_TRACE WM_USER + 111
 // 这个是需要包含的头文件设置，路径是相对于工程的相对路径
 #include "../../../KSJApi.Inc/KSJApi3D.h"
+#include "../../../KSJApi.Inc/KSJApiString.h"
 #include "../../../KSJApi.Inc/KSJCode.h"
 #include "KSJImageZoomMode.Inc/KSJImageZoomMode.h"
 #include "KSJIni.Inc/KSJIni.h"
-
-// 这是需要链接的库文件设置，路径是相对于工程的相对路径
 
 
 #ifdef _WIN64
@@ -40,6 +41,25 @@
 #pragma comment( lib, "KSJImageZoomMode.Lib\\win32\\MT_KSJImageZoomMode_x86.Lib")
 #pragma comment( lib, "KSJIni.Lib\\win32\\MT_KSJIni_x86.lib" )
 #endif
+
+#define BUFFER_NUM  64
+extern TCHAR     g_szTraceInfo[BUFFER_NUM][256];    /// 做一个buffer队列，以防止PostMessage乱序
+extern int       g_nTraceNum;
+
+#define TRACE_API(_FUNCTION_,_HANDLE_) \
+{\
+	CWnd*       handle = _HANDLE_; \
+	int       nReturnCode; \
+	TCHAR    *pszReturnCode = NULL; \
+	TCHAR    *pszFunctionName = _T(#_FUNCTION_); \
+	nReturnCode = _FUNCTION_; \
+	_stprintf_s(g_szTraceInfo[g_nTraceNum % BUFFER_NUM], 256, _T("%s, %s"), KSJ3D_GetReturnCodeString(nReturnCode), pszFunctionName); \
+	handle->PostMessage(MSG_TRACE, 0, (LPARAM)g_szTraceInfo[g_nTraceNum % BUFFER_NUM]); \
+	g_nTraceNum++; \
+}
+
+// 这是需要链接的库文件设置，路径是相对于工程的相对路径
+
 
 
 #ifndef _AFX_NO_OLE_SUPPORT

@@ -35,8 +35,7 @@ public:
 	void ConnectCamera(int nIndex);
 
 private:
-	int           m_nIndex;    // 当m_nIndex不为-1时，表示此窗口作为相机的预览窗口使用，也就是KSJ_PreviewStart将显示在此窗口上
-	                           // 当=-1时，表示是通过LoadImage来显示一张图片的窗口。
+	int           m_nIndex;    
 
 private:
 	void          ReadIni(void);
@@ -60,6 +59,8 @@ private:
 private:
 	BYTE          *m_pImageBmpData;
 	BITMAPINFO    *m_pImageBmpInfo;
+
+	CRITICAL_SECTION m_csImageBmpData;    // !!凡是在读取中不可以进行的操作都需要加m_csCatchOneFrame临界区!!
 
 public:
 	void          SetSelected( BOOL bSelect );
@@ -115,7 +116,7 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+	//afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg int  OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);

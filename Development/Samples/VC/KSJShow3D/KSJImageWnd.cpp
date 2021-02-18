@@ -43,6 +43,8 @@ m_dShowZoomH( 1.0 ),
 m_dShowZoomV( 1.0 ),
 m_bOpenFromFile( FALSE )
 {
+	InitializeCriticalSection(&m_csImageBmpData);
+
 	m_ptOffset.x = m_ptOffset.y = 0;
 
 	m_pImageBmpInfo    = (LPBITMAPINFO)new TCHAR[ sizeof(BITMAPINFOHEADER) + 256 * sizeof(RGBQUAD) ];
@@ -107,6 +109,8 @@ CKSJImageWnd::~CKSJImageWnd()
 		KSJIZM_UnInit(&m_hZoom);
 		m_hZoom = NULL;
 	}
+
+	DeleteCriticalSection(&m_csImageBmpData);
 }
 
 
@@ -206,23 +210,28 @@ int CKSJImageWnd::SetImageInfo(int nWidth, int nHeight, int nBitCount)
 
 void CKSJImageWnd::LoadImage( BYTE *pImageData, int nWidth, int nHeight, int nBitCount )
 {
-	if (
-		m_pImageBmpInfo->bmiHeader.biWidth != nWidth ||
-		m_pImageBmpInfo->bmiHeader.biHeight != nHeight ||
-		m_pImageBmpInfo->bmiHeader.biBitCount != nBitCount
-		)
-		SetImageInfo(nWidth, nHeight, nBitCount);
+	if (TryEnterCriticalSection(&m_csImageBmpData)) // 正在使用这个图更新界面的时候，就不处理这个更新
+	{
+		if (
+			m_pImageBmpInfo->bmiHeader.biWidth != nWidth ||
+			m_pImageBmpInfo->bmiHeader.biHeight != nHeight ||
+			m_pImageBmpInfo->bmiHeader.biBitCount != nBitCount
+			)
+			SetImageInfo(nWidth, nHeight, nBitCount);
 
-	if (m_pImageBmpData == NULL)    return;
+		if (m_pImageBmpData == NULL)    return;
 
-	memcpy( m_pImageBmpData, pImageData, m_pImageBmpInfo->bmiHeader.biSizeImage );
+		memcpy(m_pImageBmpData, pImageData, m_pImageBmpInfo->bmiHeader.biSizeImage);
 
-	m_dZoomFactor                   = 1.0;
-	m_dShowZoomH                    = 1.0;
-	m_dShowZoomV                    = 1.0;
-	m_ptOffset.x = m_ptOffset.y = 0;
+		m_dZoomFactor = 1.0;
+		m_dShowZoomH = 1.0;
+		m_dShowZoomV = 1.0;
+		m_ptOffset.x = m_ptOffset.y = 0;
 
-	Invalidate( );
+		LeaveCriticalSection(&m_csImageBmpData);
+
+		Invalidate();
+	}
 }
 
 void CKSJImageWnd::LoadImageFromFile(LPCTSTR lpszFileName )
@@ -367,6 +376,7 @@ void CKSJImageWnd::OnPaint()
 
 	if (m_hZoom == NULL)    return;
 
+	EnterCriticalSection(&m_csImageBmpData);
 
 	HDC   hDC = dc.GetSafeHdc();
 
@@ -396,7 +406,6 @@ void CKSJImageWnd::OnPaint()
 	if (m_nIndex != -1)    // 显示视频
 	{
 		::BitBlt(hDC, 0, 0, nClientW, nClientH, hMemClientDC, 0, 0, SRCCOPY);
-		//KSJ_PreviewSetPos(m_nIndex, m_hWnd, m_nShowOffsetH, m_nShowOffsetV, m_nShowWidth, m_nShowHeight);
 	}
 	else                   // 显示图片
 	{
@@ -406,6 +415,8 @@ void CKSJImageWnd::OnPaint()
 		::SetStretchBltMode(hDC, COLORONCOLOR);
 		::BitBlt(hDC, 0, 0, nClientW, nClientH, hMemClientDC, 0, 0, SRCCOPY);
 	}
+
+	LeaveCriticalSection(&m_csImageBmpData);
 
 	::SelectObject(hMemClientDC, hMemClientBrushOld);
 	::DeleteObject(hMemClientBrush);
@@ -498,7 +509,6 @@ void CKSJImageWnd::OnMouseMove(UINT nFlags, CPoint point)
 		if (m_nIndex != -1)
 		{
 			KSJIZM_GetPosition(m_hZoom, &m_nShowOffsetH, &m_nShowOffsetV, &m_nShowWidth, &m_nShowHeight);
-			//KSJ_PreviewSetPos(m_nIndex, m_hWnd, m_nShowOffsetH, m_nShowOffsetV, m_nShowWidth, m_nShowHeight);
 		}
 		else
 		{
@@ -513,39 +523,42 @@ void CKSJImageWnd::OnMouseMove(UINT nFlags, CPoint point)
 }
 
 
-
-// pt为屏幕坐标
-BOOL CKSJImageWnd::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
-{
-	TCHAR szBuf[256] = { 0 };
-	_stprintf_s(szBuf, 256, _T("CKSJImageWnd::OnMouseWheel::pt0( %d,%d )"), pt.x, pt.y);
-	// OutputDebugString(szBuf);
-
-	POINT ptClient;
-	::ScreenToClient(m_hWnd, &pt);
-	_stprintf_s(szBuf, 256, _T("CKSJImageWnd::OnMouseWheel::pt1( %d,%d )"), pt.x, pt.y);
-	// OutputDebugString(szBuf);
-
-
-	if (zDelta > 0)
-	{
-		KSJIZM_SetZoomMode(m_hZoom, ZM_ZOOM);
-		ZoomIn();
-	}
-	if (zDelta < 0)
-	{
-		KSJIZM_SetZoomMode(m_hZoom, ZM_ZOOM);
-		ZoomOut();
-	}
-
-	return CWnd::OnMouseWheel(nFlags, zDelta, pt);
-}
+//
+//// pt为屏幕坐标
+//BOOL CKSJImageWnd::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+//{
+//	if (!m_bSelected) return CWnd::OnMouseWheel(nFlags, zDelta, pt);
+//
+//	TCHAR szBuf[256] = { 0 };
+//	_stprintf_s(szBuf, 256, _T("CKSJImageWnd::OnMouseWheel::pt0( %d,%d )"), pt.x, pt.y);
+//	// OutputDebugString(szBuf);
+//
+//	POINT ptClient;
+//	::ScreenToClient(m_hWnd, &pt);
+//	_stprintf_s(szBuf, 256, _T("CKSJImageWnd::OnMouseWheel::pt1( %d,%d )"), pt.x, pt.y);
+//	// OutputDebugString(szBuf);
+//
+//
+//	if (zDelta > 0)
+//	{
+//		KSJIZM_SetZoomMode(m_hZoom, ZM_ZOOM);
+//		ZoomIn();
+//	}
+//	if (zDelta < 0)
+//	{
+//		KSJIZM_SetZoomMode(m_hZoom, ZM_ZOOM);
+//		ZoomOut();
+//	}
+//
+//	return CWnd::OnMouseWheel(nFlags, zDelta, pt);
+//}
 
 
 void CKSJImageWnd::ZoomIn( )
 {
 	if (m_hZoom == NULL)    return;
-
+	if (!m_bSelected) return;
+	KSJIZM_SetZoomMode(m_hZoom, ZM_ZOOM);
 	POINT ptClient;
     ::GetCursorPos(&ptClient);
 	::ScreenToClient(m_hWnd, &ptClient);
@@ -569,7 +582,8 @@ void CKSJImageWnd::ZoomIn( )
 void  CKSJImageWnd::ZoomOut()
 {
 	if (m_hZoom == NULL)    return;
-
+	if (!m_bSelected) return;
+	KSJIZM_SetZoomMode(m_hZoom, ZM_ZOOM);
 	POINT ptClient;
 	::GetCursorPos(&ptClient);
 	::ScreenToClient(m_hWnd, &ptClient);

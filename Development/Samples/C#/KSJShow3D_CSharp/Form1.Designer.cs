@@ -90,8 +90,7 @@
             this.checkBox_roi = new System.Windows.Forms.CheckBox();
             this.checkBox_param = new System.Windows.Forms.CheckBox();
             this.checkBox_datatrigger = new System.Windows.Forms.CheckBox();
-            this.checkBox_3d = new System.Windows.Forms.CheckBox();
-            this.checkBox_zmap = new System.Windows.Forms.CheckBox();
+            this.checkBox_log = new System.Windows.Forms.CheckBox();
             this.label_msg = new System.Windows.Forms.Label();
             this.label_lost = new System.Windows.Forms.Label();
             this.button_load = new System.Windows.Forms.Button();
@@ -104,6 +103,11 @@
             this.button_save = new System.Windows.Forms.Button();
             this.textBox_save = new System.Windows.Forms.TextBox();
             this.label31 = new System.Windows.Forms.Label();
+            this.comboBox_laser = new System.Windows.Forms.ComboBox();
+            this.label32 = new System.Windows.Forms.Label();
+            this.checkBox_ksjlog = new System.Windows.Forms.CheckBox();
+            this.ComboBox_DEVICE_LIST = new System.Windows.Forms.ComboBox();
+            this.label33 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_preview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_line)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_delay)).BeginInit();
@@ -148,7 +152,7 @@
             // checkBox_one
             // 
             this.checkBox_one.Appearance = System.Windows.Forms.Appearance.Button;
-            this.checkBox_one.Location = new System.Drawing.Point(212, 14);
+            this.checkBox_one.Location = new System.Drawing.Point(193, 14);
             this.checkBox_one.Name = "checkBox_one";
             this.checkBox_one.Size = new System.Drawing.Size(65, 51);
             this.checkBox_one.TabIndex = 2;
@@ -159,7 +163,7 @@
             // checkBox_capture
             // 
             this.checkBox_capture.Appearance = System.Windows.Forms.Appearance.Button;
-            this.checkBox_capture.Location = new System.Drawing.Point(305, 14);
+            this.checkBox_capture.Location = new System.Drawing.Point(264, 15);
             this.checkBox_capture.Name = "checkBox_capture";
             this.checkBox_capture.Size = new System.Drawing.Size(65, 51);
             this.checkBox_capture.TabIndex = 3;
@@ -183,7 +187,7 @@
             // label2
             // 
             this.label2.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.label2.Location = new System.Drawing.Point(443, 12);
+            this.label2.Location = new System.Drawing.Point(360, 34);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(98, 17);
             this.label2.TabIndex = 6;
@@ -191,7 +195,7 @@
             // 
             // numericUpDown_line
             // 
-            this.numericUpDown_line.Location = new System.Drawing.Point(521, 8);
+            this.numericUpDown_line.Location = new System.Drawing.Point(438, 30);
             this.numericUpDown_line.Name = "numericUpDown_line";
             this.numericUpDown_line.Size = new System.Drawing.Size(93, 21);
             this.numericUpDown_line.TabIndex = 7;
@@ -200,7 +204,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(620, 12);
+            this.label1.Location = new System.Drawing.Point(537, 34);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(17, 12);
             this.label1.TabIndex = 8;
@@ -209,7 +213,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(446, 37);
+            this.label3.Location = new System.Drawing.Point(571, 37);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(65, 12);
             this.label3.TabIndex = 9;
@@ -219,16 +223,16 @@
             // 
             this.comboBox_type.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_type.FormattingEnabled = true;
-            this.comboBox_type.Location = new System.Drawing.Point(521, 32);
+            this.comboBox_type.Location = new System.Drawing.Point(646, 32);
             this.comboBox_type.Name = "comboBox_type";
-            this.comboBox_type.Size = new System.Drawing.Size(121, 20);
+            this.comboBox_type.Size = new System.Drawing.Size(93, 20);
             this.comboBox_type.TabIndex = 10;
             this.comboBox_type.SelectedIndexChanged += new System.EventHandler(this.comboBox_type_SelectedIndexChanged);
             // 
             // checkBox_save
             // 
             this.checkBox_save.AutoSize = true;
-            this.checkBox_save.Location = new System.Drawing.Point(700, 34);
+            this.checkBox_save.Location = new System.Drawing.Point(744, 35);
             this.checkBox_save.Name = "checkBox_save";
             this.checkBox_save.Size = new System.Drawing.Size(72, 16);
             this.checkBox_save.TabIndex = 11;
@@ -767,7 +771,7 @@
             this.checkBox_param.Name = "checkBox_param";
             this.checkBox_param.Size = new System.Drawing.Size(63, 22);
             this.checkBox_param.TabIndex = 66;
-            this.checkBox_param.Text = "增益曝光";
+            this.checkBox_param.Text = "相机参数";
             this.checkBox_param.UseVisualStyleBackColor = true;
             this.checkBox_param.CheckedChanged += new System.EventHandler(this.checkBox_param_CheckedChanged);
             // 
@@ -782,27 +786,16 @@
             this.checkBox_datatrigger.UseVisualStyleBackColor = true;
             this.checkBox_datatrigger.CheckedChanged += new System.EventHandler(this.checkBox_datatrigger_CheckedChanged);
             // 
-            // checkBox_3d
+            // checkBox_log
             // 
-            this.checkBox_3d.Appearance = System.Windows.Forms.Appearance.Button;
-            this.checkBox_3d.Location = new System.Drawing.Point(65, 290);
-            this.checkBox_3d.Name = "checkBox_3d";
-            this.checkBox_3d.Size = new System.Drawing.Size(63, 22);
-            this.checkBox_3d.TabIndex = 68;
-            this.checkBox_3d.Text = "3d采集";
-            this.checkBox_3d.UseVisualStyleBackColor = true;
-            this.checkBox_3d.CheckedChanged += new System.EventHandler(this.checkBox_3d_CheckedChanged);
-            // 
-            // checkBox_zmap
-            // 
-            this.checkBox_zmap.Appearance = System.Windows.Forms.Appearance.Button;
-            this.checkBox_zmap.Location = new System.Drawing.Point(65, 336);
-            this.checkBox_zmap.Name = "checkBox_zmap";
-            this.checkBox_zmap.Size = new System.Drawing.Size(63, 22);
-            this.checkBox_zmap.TabIndex = 69;
-            this.checkBox_zmap.Text = "zmap";
-            this.checkBox_zmap.UseVisualStyleBackColor = true;
-            this.checkBox_zmap.CheckedChanged += new System.EventHandler(this.checkBox_zmap_CheckedChanged);
+            this.checkBox_log.Appearance = System.Windows.Forms.Appearance.Button;
+            this.checkBox_log.Location = new System.Drawing.Point(65, 290);
+            this.checkBox_log.Name = "checkBox_log";
+            this.checkBox_log.Size = new System.Drawing.Size(63, 22);
+            this.checkBox_log.TabIndex = 68;
+            this.checkBox_log.Text = "程序LOG";
+            this.checkBox_log.UseVisualStyleBackColor = true;
+            this.checkBox_log.CheckedChanged += new System.EventHandler(this.checkBox_log_CheckedChanged);
             // 
             // label_msg
             // 
@@ -822,7 +815,7 @@
             // 
             // button_load
             // 
-            this.button_load.Location = new System.Drawing.Point(911, 8);
+            this.button_load.Location = new System.Drawing.Point(959, 7);
             this.button_load.Name = "button_load";
             this.button_load.Size = new System.Drawing.Size(92, 27);
             this.button_load.TabIndex = 72;
@@ -844,7 +837,7 @@
             // checkBox_auto
             // 
             this.checkBox_auto.AutoSize = true;
-            this.checkBox_auto.Location = new System.Drawing.Point(782, 8);
+            this.checkBox_auto.Location = new System.Drawing.Point(835, 9);
             this.checkBox_auto.Name = "checkBox_auto";
             this.checkBox_auto.Size = new System.Drawing.Size(72, 16);
             this.checkBox_auto.TabIndex = 74;
@@ -855,7 +848,7 @@
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(782, 35);
+            this.checkBox1.Location = new System.Drawing.Point(835, 36);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(84, 16);
             this.checkBox1.TabIndex = 75;
@@ -891,7 +884,7 @@
             // 
             // button_save
             // 
-            this.button_save.Location = new System.Drawing.Point(1028, 9);
+            this.button_save.Location = new System.Drawing.Point(1076, 8);
             this.button_save.Name = "button_save";
             this.button_save.Size = new System.Drawing.Size(92, 27);
             this.button_save.TabIndex = 77;
@@ -901,25 +894,82 @@
             // 
             // textBox_save
             // 
-            this.textBox_save.Location = new System.Drawing.Point(983, 44);
+            this.textBox_save.Location = new System.Drawing.Point(1028, 44);
             this.textBox_save.Name = "textBox_save";
-            this.textBox_save.Size = new System.Drawing.Size(191, 21);
+            this.textBox_save.Size = new System.Drawing.Size(162, 21);
             this.textBox_save.TabIndex = 78;
             // 
             // label31
             // 
             this.label31.AutoSize = true;
-            this.label31.Location = new System.Drawing.Point(880, 47);
+            this.label31.Location = new System.Drawing.Point(925, 47);
             this.label31.Name = "label31";
             this.label31.Size = new System.Drawing.Size(101, 12);
             this.label31.TabIndex = 79;
             this.label31.Text = "保存配置文件名：";
+            // 
+            // comboBox_laser
+            // 
+            this.comboBox_laser.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_laser.FormattingEnabled = true;
+            this.comboBox_laser.Location = new System.Drawing.Point(776, 691);
+            this.comboBox_laser.Name = "comboBox_laser";
+            this.comboBox_laser.Size = new System.Drawing.Size(121, 20);
+            this.comboBox_laser.TabIndex = 80;
+            this.comboBox_laser.Visible = false;
+            this.comboBox_laser.SelectedIndexChanged += new System.EventHandler(this.comboBox_laser_SelectedIndexChanged);
+            // 
+            // label32
+            // 
+            this.label32.AutoSize = true;
+            this.label32.Location = new System.Drawing.Point(711, 695);
+            this.label32.Name = "label32";
+            this.label32.Size = new System.Drawing.Size(59, 12);
+            this.label32.TabIndex = 81;
+            this.label32.Text = "激光模式:";
+            this.label32.Visible = false;
+            // 
+            // checkBox_ksjlog
+            // 
+            this.checkBox_ksjlog.AutoSize = true;
+            this.checkBox_ksjlog.Location = new System.Drawing.Point(67, 355);
+            this.checkBox_ksjlog.Name = "checkBox_ksjlog";
+            this.checkBox_ksjlog.Size = new System.Drawing.Size(42, 16);
+            this.checkBox_ksjlog.TabIndex = 82;
+            this.checkBox_ksjlog.Text = "log";
+            this.checkBox_ksjlog.UseVisualStyleBackColor = true;
+            this.checkBox_ksjlog.Visible = false;
+            this.checkBox_ksjlog.CheckedChanged += new System.EventHandler(this.checkBox_ksjlog_CheckedChanged);
+            // 
+            // ComboBox_DEVICE_LIST
+            // 
+            this.ComboBox_DEVICE_LIST.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ComboBox_DEVICE_LIST.FormattingEnabled = true;
+            this.ComboBox_DEVICE_LIST.Location = new System.Drawing.Point(424, 4);
+            this.ComboBox_DEVICE_LIST.Name = "ComboBox_DEVICE_LIST";
+            this.ComboBox_DEVICE_LIST.Size = new System.Drawing.Size(381, 20);
+            this.ComboBox_DEVICE_LIST.TabIndex = 84;
+            this.ComboBox_DEVICE_LIST.SelectedIndexChanged += new System.EventHandler(this.ComboBox_DEVICE_LIST_SelectedIndexChanged);
+            // 
+            // label33
+            // 
+            this.label33.AutoSize = true;
+            this.label33.Location = new System.Drawing.Point(349, 9);
+            this.label33.Name = "label33";
+            this.label33.Size = new System.Drawing.Size(65, 12);
+            this.label33.TabIndex = 83;
+            this.label33.Text = "加载相机：";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1209, 838);
+            this.Controls.Add(this.ComboBox_DEVICE_LIST);
+            this.Controls.Add(this.label33);
+            this.Controls.Add(this.checkBox_ksjlog);
+            this.Controls.Add(this.label32);
+            this.Controls.Add(this.comboBox_laser);
             this.Controls.Add(this.label31);
             this.Controls.Add(this.textBox_save);
             this.Controls.Add(this.button_save);
@@ -931,8 +981,7 @@
             this.Controls.Add(this.button_load);
             this.Controls.Add(this.label_lost);
             this.Controls.Add(this.label_msg);
-            this.Controls.Add(this.checkBox_zmap);
-            this.Controls.Add(this.checkBox_3d);
+            this.Controls.Add(this.checkBox_log);
             this.Controls.Add(this.checkBox_datatrigger);
             this.Controls.Add(this.checkBox_param);
             this.Controls.Add(this.checkBox_roi);
@@ -1085,8 +1134,7 @@
         private System.Windows.Forms.CheckBox checkBox_roi;
         private System.Windows.Forms.CheckBox checkBox_param;
         private System.Windows.Forms.CheckBox checkBox_datatrigger;
-        private System.Windows.Forms.CheckBox checkBox_3d;
-        private System.Windows.Forms.CheckBox checkBox_zmap;
+        private System.Windows.Forms.CheckBox checkBox_log;
         private System.Windows.Forms.Label label_msg;
         private System.Windows.Forms.Label label_lost;
         private System.Windows.Forms.Button button_load;
@@ -1099,6 +1147,11 @@
         private System.Windows.Forms.Button button_save;
         private System.Windows.Forms.TextBox textBox_save;
         private System.Windows.Forms.Label label31;
+        private System.Windows.Forms.ComboBox comboBox_laser;
+        private System.Windows.Forms.Label label32;
+        private System.Windows.Forms.CheckBox checkBox_ksjlog;
+        private System.Windows.Forms.ComboBox ComboBox_DEVICE_LIST;
+        private System.Windows.Forms.Label label33;
     }
 }
 

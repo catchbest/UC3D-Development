@@ -47,8 +47,12 @@ void CStartTrigger::OnCbnSelchangeComboStartmode()
 	if (m_StartTriggerCondition != 0) StartTriggerCondition = (KSJ3D_TRIGGER_EDGE_MODE)(m_StartTriggerCondition - 1);
 	else StartTriggerCondition = (KSJ3D_TRIGGER_EDGE_MODE)m_StartTriggerCondition;
 
-	if (m_StartTriggerCondition == 0) KSJ3D_SetStartTrigger(m_nDeviceCurSel, STS_INPUT_0, false, StartTriggerCondition);
-	else KSJ3D_SetStartTrigger(m_nDeviceCurSel, STS_INPUT_0, true, StartTriggerCondition);
+	if (m_StartTriggerCondition == 0)
+	{
+		TRACE_API(KSJ3D_SetStartTrigger(m_nDeviceCurSel, STS_INPUT_0, false, StartTriggerCondition), GetParent());
+	}
+	else
+		TRACE_API(KSJ3D_SetStartTrigger(m_nDeviceCurSel, STS_INPUT_0, true, StartTriggerCondition), GetParent());
 }
 
 
@@ -56,7 +60,7 @@ void CStartTrigger::OnEnChangeEditStartdelay()
 {
 	if (m_nDeviceCurSel == -1)   return;
 	m_nStartTriggerDelay = GetDlgItemInt(IDC_EDIT_STARTDELAY);
-	KSJ3D_SetStartTriggerParameters(m_nDeviceCurSel, m_StartTriggerFilter, m_nStartTriggerDelay);
+	TRACE_API(KSJ3D_SetStartTriggerParameters(m_nDeviceCurSel, m_StartTriggerFilter, m_nStartTriggerDelay), GetParent());
 }
 
 
@@ -64,7 +68,7 @@ void CStartTrigger::OnEnChangeEditFilter()
 {
 	if (m_nDeviceCurSel == -1)   return;
 	m_StartTriggerFilter = GetDlgItemInt(IDC_EDIT_FILTER);
-	KSJ3D_SetStartTriggerParameters(m_nDeviceCurSel, m_StartTriggerFilter, m_nStartTriggerDelay);
+	TRACE_API(KSJ3D_SetStartTriggerParameters(m_nDeviceCurSel, m_StartTriggerFilter, m_nStartTriggerDelay), GetParent());
 }
 
 
@@ -105,12 +109,12 @@ void CStartTrigger::Readini(HANDLE hKSJIni)
 	KSJINI_GetDWORD(hKSJIni, _T("StartTrigger"), _T("Mode"), 0, (DWORD*)&nvalue);
 	pComboBox->SetCurSel(nvalue);
 	OnCbnSelchangeComboStartmode();
-	KSJ3D_GetStartTriggerParameters(m_nDeviceCurSel, &nvalue, &nvalue2);
+	TRACE_API(KSJ3D_GetStartTriggerParameters(m_nDeviceCurSel, &nvalue, &nvalue2), GetParent());
 	KSJINI_GetDWORD(hKSJIni, _T("StartTrigger"), _T("Delay"), nvalue, (DWORD*)&m_nStartTriggerDelay);
 	KSJINI_GetDWORD(hKSJIni, _T("StartTrigger"), _T("Filter"), nvalue2, (DWORD*)&m_StartTriggerFilter);
 	((CSpinButtonCtrl*)GetDlgItem(IDC_SPIN_STARTDELAY))->SetPos32(m_nStartTriggerDelay);
 	((CSpinButtonCtrl*)GetDlgItem(IDC_SPIN_FILTER))->SetPos32(m_StartTriggerFilter);
-	KSJ3D_SetStartTriggerParameters(m_nDeviceCurSel, m_StartTriggerFilter, m_nStartTriggerDelay);
+	TRACE_API(KSJ3D_SetStartTriggerParameters(m_nDeviceCurSel, m_StartTriggerFilter, m_nStartTriggerDelay), GetParent());
 }
 
 void CStartTrigger::Writeini(HANDLE hKSJIni)

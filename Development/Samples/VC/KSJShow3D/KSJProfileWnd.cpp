@@ -424,8 +424,8 @@ void CKSJProfileWnd::OnPaint()
 
 
 		float fZSize = m_fZMax - m_fZMin;
-		fzmin = (float)nZmin / m_nShowHeight * fZSize;
-		fzmax = (float)nZmax / m_nShowHeight * fZSize;
+		fzmin = (float)nZmin / m_nShowHeight * fZSize + m_fZMin;
+		fzmax = (float)nZmax / m_nShowHeight * fZSize + m_fZMin;
 		float foffset = 0;
 		int n = m_fZMin / m_nzScale;
 		int m = (int)m_fZMin%m_nzScale;
@@ -572,7 +572,9 @@ void CKSJProfileWnd::OnLButtonDblClk(UINT nFlags, CPoint point)
 	{
 		data[0] = (float)ret.x;
 		data[1] = (float)ret.z;
-		GetParent()->SendMessage(WM_PROFILE, nFlags, (long)data);
+
+		GetParent()->SendMessage(WM_PROFILE, nFlags, (LPARAM)data);
+		
 		m_fDblImage = ret;
 		Invalidate();
 		UpdateWindow();

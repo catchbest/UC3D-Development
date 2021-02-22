@@ -37,7 +37,7 @@
 #pragma comment( lib, "KSJImageZoomMode.Lib\\win32\\MT_KSJImageZoomMode_x64.Lib")
 #pragma comment( lib, "KSJIni.Lib\\win32\\MT_KSJIni_x64.lib" )
 #else
-#pragma comment( lib, "../../../KSJApi.Lib/x86/KSJApi.lib" )
+#pragma comment( lib, "../../../KSJApi.Lib/x86/KSJApid.lib" )
 #pragma comment( lib, "KSJImageZoomMode.Lib\\win32\\MT_KSJImageZoomMode_x86.Lib")
 #pragma comment( lib, "KSJIni.Lib\\win32\\MT_KSJIni_x86.lib" )
 #endif

@@ -22,7 +22,7 @@ extern "C"{
 	/// @return    成功返回 RET_SUCCESS(0)。否则返回非0值的错误码, 请参考 KSJCode.h 中错误码的定义。
 	/// @attention 一般在程序初始化时调用
 	///          \li 相机在这个执行这个函数之前与电脑连接好
-	///          \li 如果需要更新设备，请执行反初始化KSJ_UnInit()后再执行KSJ3D_Inital()，需要特别注意的是：重新这样操作以后，具体物理相机所对应的索引号可能会改变。
+	///          \li 如果需要更新设备，请执行反初始化KSJ3D_UnInit()后再执行KSJ3D_Inital()，需要特别注意的是：重新这样操作以后，具体物理相机所对应的索引号可能会改变。
 	///          \li 如果需要操作指定的相机，需要给物理相机分配不同的序号Serials（KSJ_SetSerials()），根据不同的序号关联到当前的索引号
 	///
 	///-----------------------------------------------------------------------------
@@ -456,13 +456,13 @@ extern "C"{
 	/// @brief     KSJ3D_SetStartTriggerParameters
 	/// @brief     设置相机开始采集信号参数
 	/// @param     nChannel [in] 设备索引（从0开始，最大索引数为:连接到主机的设备数目减一）
-	/// @param     StartTriggerFilter [in] 信号滤波时间，单位：微秒
+	/// @param     nStartTriggerFilter [in] 信号滤波时间，单位：微秒
 	/// @param     nStartTriggerDelay [in] 信号延迟；该参数表示在收到Start Trigger信号后，将会忽略掉nStartTriggerDelay个Data Trigger信号之后，才开始采集
 	/// @return    成功返回 RET_SUCCESS(0)。否则返回非0值的错误码, 请参考 KSJCode.h 中错误码的定义。
 	/// @attention 调用KSJ3D_Inital函数初始化后调用
 	///
 	///-----------------------------------------------------------------------------
-	KSJ_API  int __stdcall KSJ3D_SetStartTriggerParameters(int nChannel, int StartTriggerFilter, int nStartTriggerDelay);
+	KSJ_API  int __stdcall KSJ3D_SetStartTriggerParameters(int nChannel, int nStartTriggerFilter, int nStartTriggerDelay);
 
 	///-----------------------------------------------------------------------------
 	///
@@ -887,6 +887,20 @@ extern "C"{
 	///
 	///-----------------------------------------------------------------------------
 	KSJ_API  int __stdcall KSJ3D_GetLastRetCode(int nChannel);
+
+	///-----------------------------------------------------------------------------
+	///
+	/// @brief     KSJ3D_OpenSettingPage
+	/// @brief     打开相机设置界面
+	/// @param     nIndex [in] 设备索引（从0开始，最大索引数为:连接到主机的设备数目减一）
+	/// @param     hWndParent [in] 弹出设置对话框的主窗口句柄
+	/// @param     nLeft [in] 弹出设置对话框相对主窗口的左偏移
+	/// @param     nTop [in] 弹出设置对话框相对主窗口的右偏移
+	/// @return    成功返回 RET_SUCCESS(0)。否则返回非0值的错误码, 请参考 KSJCode.h 中错误码的定义。
+	/// @attention 调用KSJ_Init函数初始化后调用
+	///
+	///-----------------------------------------------------------------------------
+	KSJ_API  int __stdcall KSJ3D_OpenSettingPage(IN int nIndex, IN void *hWndParent, int nLeft, int nTop);
 
 #ifdef __cplusplus
 }

@@ -32,8 +32,8 @@ extern "C"{
 	/// 语言类型枚举 
 	enum KSJ_LANGUAGE
 	{
-		L_ENG,     ///< 英文
 		L_CHS,     ///< 中文
+		L_ENG,     ///< 英文
 	};
 
 	///-----------------------------------------------------------------------------
@@ -113,6 +113,17 @@ extern "C"{
 
 	///-----------------------------------------------------------------------------
 	///
+	/// @brief     KSJ3D_GetTriggerTriggerCondition
+	/// @brief     获得触发信号条件字符串
+	/// @param     TriggerMethod [in] 传入触发信号条件类型, 参考KSJ_TRIGGERMETHOD的定义
+	/// @return    字符串信息地址指针
+	/// @attention 可以在任意时刻调用
+	///
+	///-----------------------------------------------------------------------------
+	KSJ_API PTCHAR __stdcall KSJ3D_GetTriggerTriggerCondition(KSJ3D_TRIGGER_EDGE_MODE  StartTriggerCondition);
+
+	///-----------------------------------------------------------------------------
+	///
 	/// @brief     KSJ3D_GetLaserModeString
 	/// @brief     获得激光模式字符串
 	/// @param     TriggerEdge [in] 传入激光模式类型, 参考KSJ_LASER_MODE的定义
@@ -121,6 +132,16 @@ extern "C"{
 	///
 	///-----------------------------------------------------------------------------
 	KSJ_API PTCHAR __stdcall KSJ3D_GetLaserModeString(KSJ_LASER_MODE LaserMode);
+
+	/// -----------------------------------------------------------------------------
+	///
+	/// @brief     这是一个辅助函数，方便用户获取MVD_USER_PRESETTING枚举值对应的字符串，这个用户也可以不调用，自行设置对应的字符串信息。
+	/// @attention 无。
+	/// @param     [IN]UserPresetting 参考MVD_USER_PRESETTING枚举类型
+	/// @return    返回对应的字符串指针。
+	///
+	/// -----------------------------------------------------------------------------
+	KSJ_API PTCHAR __stdcall KSJ3D_GetUserPresettingString(IN int UserPresetting);
 
 	
 
